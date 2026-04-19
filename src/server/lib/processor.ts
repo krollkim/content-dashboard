@@ -117,7 +117,7 @@ export function buildViralSignalsOnly(
 
 async function generateFeedCopy(input: RawProcessInput): Promise<string> {
   const message = await getClient().messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-3-5-sonnet-20240620",
     max_tokens: 500,
     system: SYSTEM_PROMPT,
     messages: [
@@ -148,7 +148,7 @@ Respond with JSON: { "caption": "..." }`,
 
 async function generateStoriesScript(input: RawProcessInput): Promise<string> {
   const message = await getClient().messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-3-5-sonnet-20240620",
     max_tokens: 500,
     system: SYSTEM_PROMPT,
     messages: [
@@ -186,7 +186,7 @@ interface ClassificationResult {
 
 async function classifyContent(input: RawProcessInput): Promise<ClassificationResult> {
   const message = await getClient().messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-3-5-sonnet-20240620",
     max_tokens: 400,
     system: SYSTEM_PROMPT,
     messages: [

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("pipeline_logs").insert([
       { content_id: data.id, event: "ingested", payload: { source: "manual" } },
-      { content_id: data.id, event: "ai_processed", payload: { model: "claude-3-5-sonnet-20241022" } },
+      { content_id: data.id, event: "ai_processed", payload: { model: "claude-3-5-sonnet-20240620" } },
     ]);
 
     return NextResponse.json({ ok: true, id: data.id });
