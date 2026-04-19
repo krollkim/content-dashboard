@@ -15,7 +15,7 @@ function getServiceClient() {
 }
 
 function validateWebhookSecret(req: NextRequest): boolean {
-  const secret = req.headers.get("x-webhook-secret");
+  const secret = req.headers.get("x-telegram-bot-api-secret-token");
   return secret === process.env.TELEGRAM_WEBHOOK_SECRET;
 }
 
