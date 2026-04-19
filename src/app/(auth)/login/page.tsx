@@ -18,7 +18,10 @@ export default function LoginPage() {
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${location.origin}/inbox` },
+      options: {
+        emailRedirectTo: `${location.origin}/inbox`,
+        shouldCreateUser: false, // only pre-created users can log in
+      },
     });
 
     setLoading(false);
