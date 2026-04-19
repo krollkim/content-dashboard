@@ -113,6 +113,13 @@ export function buildViralSignalsOnly(
   return buildViralSignals(engagementData, confidenceScore);
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Strip markdown code fences that Claude sometimes wraps around JSON responses. */
+function extractJson(raw: string): string {
+  return raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+}
+
 // ─── Private generators ───────────────────────────────────────────────────────
 
 async function generateFeedCopy(input: RawProcessInput): Promise<string> {
@@ -142,7 +149,7 @@ Respond with JSON: { "caption": "..." }`,
   });
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";
-  const parsed = JSON.parse(text) as { caption: string };
+  const parsed = JSON.parse(extractJson(text)) as { caption: string };
   return parsed.caption;
 }
 
@@ -173,7 +180,7 @@ Respond with JSON: { "script": "..." }`,
   });
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";
-  const parsed = JSON.parse(text) as { script: string };
+  const parsed = JSON.parse(extractJson(text)) as { script: string };
   return parsed.script;
 }
 
@@ -209,7 +216,7 @@ Analyze and respond with JSON:
   });
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";
-  return JSON.parse(text) as ClassificationResult;
+  return JSON.parse(extractJson(text)) as ClassificationResult;
 }
 
 function buildViralSignals(
