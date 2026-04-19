@@ -26,6 +26,7 @@ export const contentRouter = router({
     .input(
       z.object({
         status: contentStatusSchema.optional(),
+        statuses: z.array(contentStatusSchema).optional(),
         persona: clientPersonaSchema.optional(),
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
@@ -38,7 +39,9 @@ export const contentRouter = router({
         .order("created_at", { ascending: false })
         .range(input.offset, input.offset + input.limit - 1);
 
-      if (input.status) {
+      if (input.statuses && input.statuses.length > 0) {
+        query = query.in("status", input.statuses);
+      } else if (input.status) {
         query = query.eq("status", input.status);
       }
       if (input.persona) {

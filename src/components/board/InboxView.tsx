@@ -20,19 +20,26 @@ export function InboxView() {
   const { inboxFilters, setInboxFilter, focusedInboxIndex, setFocusedInboxIndex } =
     useContentStore();
 
-  // Determine which status(es) to fetch
-  const statusFilter: ContentStatus | undefined =
-    inboxFilters.tab === "starred" ? "starred" : "inbox";
+  const utils = trpc.useUtils();
 
-  const { data, refetch } = trpc.content.list.useQuery({
-    status: statusFilter,
-    persona: inboxFilters.persona ?? undefined,
-    limit: 20,
-    offset: 0,
-  });
+  // "All" and "Today" show both inbox + starred; "Starred" shows only starred
+  const queryInput =
+    inboxFilters.tab === "starred"
+      ? { status: "starred" as ContentStatus, persona: inboxFilters.persona ?? undefined, limit: 20, offset: 0 }
+      : { statuses: ["inbox", "starred"] as ContentStatus[], persona: inboxFilters.persona ?? undefined, limit: 20, offset: 0 };
+
+  const { data } = trpc.content.list.useQuery(queryInput);
+
+  // Authoritative counts — not derived from the current page's items
+  const { data: counts } = trpc.content.inboxCounts.useQuery();
+
+  const invalidateAll = () => {
+    void utils.content.list.invalidate();
+    void utils.content.inboxCounts.invalidate();
+  };
 
   const transitionMutation = trpc.content.transition.useMutation({
-    onSuccess: () => void refetch(),
+    onSuccess: invalidateAll,
   });
 
   const pieces = data?.items ?? [];
@@ -116,7 +123,7 @@ export function InboxView() {
             </p>
           </div>
 
-          <ManualIngestButton onSuccess={() => void refetch()} />
+          <ManualIngestButton onSuccess={invalidateAll} />
         </div>
 
         {/* Filters */}
@@ -134,9 +141,9 @@ export function InboxView() {
               `}
             >
               {tab.label}
-              {tab.id === "starred" && (
+              {tab.id === "starred" && (counts?.starred ?? 0) > 0 && (
                 <span className="ml-1.5 text-[9px] bg-amber-400/20 text-amber-400 rounded px-1">
-                  {pieces.filter((p) => p.status === "starred").length}
+                  {counts?.starred ?? 0}
                 </span>
               )}
             </button>
