@@ -1,19 +1,35 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 
+const URL_ERROR_MESSAGES: Record<string, string> = {
+  otp_expired: "That link has expired. Enter your email below to get a fresh one.",
+  access_denied: "Link invalid or already used. Request a new one below.",
+};
+
 export default function LoginPage() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Derived directly from URL — no useEffect needed
+  const errorCode = searchParams.get("error_code");
+  const urlError = errorCode
+    ? (URL_ERROR_MESSAGES[errorCode] ?? "Something went wrong. Please request a new link.")
+    : null;
+
+  // Show URL error first, then form submission error
+  const visibleError = urlError ?? formError;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setFormError(null);
 
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithOtp({
@@ -26,7 +42,7 @@ export default function LoginPage() {
 
     setLoading(false);
     if (authError) {
-      setError(authError.message);
+      setFormError(authError.message);
     } else {
       setSent(true);
     }
@@ -67,6 +83,20 @@ export default function LoginPage() {
                 onSubmit={handleSubmit}
                 className="space-y-5"
               >
+                {/* URL error banner */}
+                <AnimatePresence>
+                  {visibleError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="rounded-md bg-amber-400/10 border border-amber-400/30 px-4 py-3"
+                    >
+                      <p className="text-xs text-amber-300 leading-relaxed">{visibleError}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <div>
                   <label
                     htmlFor="email"
@@ -81,13 +111,10 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@smiley.studio"
                     required
+                    autoFocus
                     className="w-full bg-[var(--bg-overlay)] border border-[var(--border-default)] rounded-md px-4 py-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)] transition-colors"
                   />
                 </div>
-
-                {error && (
-                  <p className="text-xs text-red-400">{error}</p>
-                )}
 
                 <button
                   type="submit"
@@ -109,9 +136,15 @@ export default function LoginPage() {
                   Check your inbox
                 </p>
                 <p className="text-xs text-[var(--text-secondary)]">
-                  We sent a magic link to{" "}
+                  Sent a new magic link to{" "}
                   <span className="text-[var(--accent)]">{email}</span>
                 </p>
+                <button
+                  onClick={() => setSent(false)}
+                  className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors underline underline-offset-2 mt-2"
+                >
+                  Wrong email? Try again
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
