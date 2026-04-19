@@ -21,23 +21,31 @@ function LoginForm() {
   const [formError, setFormError] = useState<string | null>(null);
 
   // Handle implicit-flow magic link: Supabase puts #access_token in the hash.
-  // getSession() picks it up automatically; onAuthStateChange fires once parsed.
+  // createBrowserClient (@supabase/ssr) does NOT auto-parse hash tokens, so we
+  // do it manually then call setSession to establish the cookie-based session.
   useEffect(() => {
     const supabase = createClient();
 
-    // Catch a session that's already established (hash already processed)
+    // If user lands here with a hash token (implicit flow magic link)
+    const hash = window.location.hash;
+    if (hash.includes("access_token=")) {
+      const params = new URLSearchParams(hash.slice(1)); // strip leading #
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+      if (access_token && refresh_token) {
+        supabase.auth
+          .setSession({ access_token, refresh_token })
+          .then(({ error }) => {
+            if (!error) router.replace("/inbox");
+          });
+        return;
+      }
+    }
+
+    // Check for an existing session (e.g. already logged in, visiting /login)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.replace("/inbox");
     });
-
-    // Catch the async case where the SDK is still parsing the hash
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (session) router.replace("/inbox");
-      }
-    );
-
-    return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
