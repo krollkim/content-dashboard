@@ -36,7 +36,8 @@ export async function proxy(request: NextRequest) {
   if (
     !user &&
     !pathname.startsWith("/login") &&
-    !pathname.startsWith("/api/ingest") // ingest routes use their own webhook secret auth
+    !pathname.startsWith("/auth/callback") && // handles code exchange — must pass through unauthenticated
+    !pathname.startsWith("/api/ingest")       // ingest routes use their own webhook secret auth
   ) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
