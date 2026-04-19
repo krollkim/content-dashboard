@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,10 +14,32 @@ const URL_ERROR_MESSAGES: Record<string, string> = {
 
 function LoginForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Handle implicit-flow magic link: Supabase puts #access_token in the hash.
+  // getSession() picks it up automatically; onAuthStateChange fires once parsed.
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Catch a session that's already established (hash already processed)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace("/inbox");
+    });
+
+    // Catch the async case where the SDK is still parsing the hash
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session) router.replace("/inbox");
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Derived from URL — no useEffect needed
   const errorCode = searchParams.get("error_code");
