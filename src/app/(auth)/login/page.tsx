@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
@@ -10,20 +10,21 @@ const URL_ERROR_MESSAGES: Record<string, string> = {
   access_denied: "Link invalid or already used. Request a new one below.",
 };
 
-export default function LoginPage() {
+// ─── Inner form — uses useSearchParams, must be inside <Suspense> ─────────────
+
+function LoginForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // Derived directly from URL — no useEffect needed
+  // Derived from URL — no useEffect needed
   const errorCode = searchParams.get("error_code");
   const urlError = errorCode
     ? (URL_ERROR_MESSAGES[errorCode] ?? "Something went wrong. Please request a new link.")
     : null;
 
-  // Show URL error first, then form submission error
   const visibleError = urlError ?? formError;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -36,7 +37,7 @@ export default function LoginPage() {
       email,
       options: {
         emailRedirectTo: `${location.origin}/inbox`,
-        shouldCreateUser: false, // only pre-created users can log in
+        shouldCreateUser: false,
       },
     });
 
@@ -48,6 +49,89 @@ export default function LoginPage() {
     }
   }
 
+  return (
+    <div className="card p-8">
+      <AnimatePresence mode="wait">
+        {!sent ? (
+          <motion.form
+            key="form"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
+            <AnimatePresence>
+              {visibleError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="rounded-md bg-amber-400/10 border border-amber-400/30 px-4 py-3"
+                >
+                  <p className="text-xs text-amber-300 leading-relaxed">{visibleError}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs text-[var(--text-secondary)] mb-2 tracking-wide"
+              >
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@smiley.studio"
+                required
+                autoFocus
+                className="w-full bg-[var(--bg-overlay)] border border-[var(--border-default)] rounded-md px-4 py-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)] transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[var(--accent)] text-black font-semibold text-sm py-3 rounded-md transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {loading ? "Sending…" : "Send magic link"}
+            </button>
+          </motion.form>
+        ) : (
+          <motion.div
+            key="sent"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-4 space-y-3"
+          >
+            <div className="text-2xl">✉️</div>
+            <p className="text-sm text-[var(--text-primary)] font-medium">
+              Check your inbox
+            </p>
+            <p className="text-xs text-[var(--text-secondary)]">
+              Sent a new magic link to{" "}
+              <span className="text-[var(--accent)]">{email}</span>
+            </p>
+            <button
+              onClick={() => setSent(false)}
+              className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors underline underline-offset-2 mt-2"
+            >
+              Wrong email? Try again
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Page — wraps LoginForm in Suspense so Next.js can prerender the shell ────
+
+export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center px-4">
       {/* Ambient glow */}
@@ -71,84 +155,10 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Card */}
-        <div className="card p-8">
-          <AnimatePresence mode="wait">
-            {!sent ? (
-              <motion.form
-                key="form"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onSubmit={handleSubmit}
-                className="space-y-5"
-              >
-                {/* URL error banner */}
-                <AnimatePresence>
-                  {visibleError && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="rounded-md bg-amber-400/10 border border-amber-400/30 px-4 py-3"
-                    >
-                      <p className="text-xs text-amber-300 leading-relaxed">{visibleError}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-xs text-[var(--text-secondary)] mb-2 tracking-wide"
-                  >
-                    Email address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@smiley.studio"
-                    required
-                    autoFocus
-                    className="w-full bg-[var(--bg-overlay)] border border-[var(--border-default)] rounded-md px-4 py-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)] transition-colors"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[var(--accent)] text-black font-semibold text-sm py-3 rounded-md transition-opacity hover:opacity-90 disabled:opacity-50"
-                >
-                  {loading ? "Sending…" : "Send magic link"}
-                </button>
-              </motion.form>
-            ) : (
-              <motion.div
-                key="sent"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center py-4 space-y-3"
-              >
-                <div className="text-2xl">✉️</div>
-                <p className="text-sm text-[var(--text-primary)] font-medium">
-                  Check your inbox
-                </p>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Sent a new magic link to{" "}
-                  <span className="text-[var(--accent)]">{email}</span>
-                </p>
-                <button
-                  onClick={() => setSent(false)}
-                  className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors underline underline-offset-2 mt-2"
-                >
-                  Wrong email? Try again
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        {/* Suspense lets Next.js prerender the shell; LoginForm hydrates client-side */}
+        <Suspense fallback={<div className="card p-8 h-40" />}>
+          <LoginForm />
+        </Suspense>
       </motion.div>
     </div>
   );
