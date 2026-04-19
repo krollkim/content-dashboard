@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
               content_id: data.id,
               event: "ai_processed" as const,
               payload: {
-                model: "claude-3-5-sonnet-20240620",
+                model: "claude-sonnet-4-6",
                 calls: aiCallsUsed,
                 mode,
               },
