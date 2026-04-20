@@ -16,7 +16,11 @@ function getServiceClient() {
 
 function validateWebhookSecret(req: NextRequest): boolean {
   const secret = req.headers.get("x-telegram-bot-api-secret-token");
-  return secret === process.env.TELEGRAM_WEBHOOK_SECRET;
+  const expected = process.env.TELEGRAM_WEBHOOK_SECRET;
+  console.log("[webhook] received secret:", JSON.stringify(secret));
+  console.log("[webhook] expected secret:", JSON.stringify(expected));
+  console.log("[webhook] match:", secret === expected);
+  return secret === expected;
 }
 
 // ─── ScoutBot structured payload ─────────────────────────────────────────────
