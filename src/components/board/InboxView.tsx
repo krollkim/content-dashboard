@@ -20,7 +20,7 @@ export function InboxView() {
   const { inboxFilters, setInboxFilter, focusedInboxIndex, setFocusedInboxIndex } =
     useContentStore();
 
-  const utils = trpc.useUtils();
+   const utils = trpc.useUtils();
 
   // "All" and "Today" show both inbox + starred; "Starred" shows only starred
   const queryInput =
