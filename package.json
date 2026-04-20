@@ -19,6 +19,7 @@
     "@trpc/client": "^11.13.0",
     "@trpc/react-query": "^11.13.0",
     "@trpc/server": "^11.13.0",
+    "@vercel/functions": "^3.4.3",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.38.0",

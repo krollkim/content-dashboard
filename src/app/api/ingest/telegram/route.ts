@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import {
   processContent,
   classifyOnly,
@@ -14,9 +15,9 @@ function getServiceClient() {
   return createClient(url, key);
 }
 
-function validateWebhookSecret(_req: NextRequest): boolean {
-  // TEMP: bypass secret check to confirm pipeline works end-to-end
-  return true;
+function validateWebhookSecret(req: NextRequest): boolean {
+  const secret = req.headers.get("x-telegram-bot-api-secret-token");
+  return secret === process.env.TELEGRAM_WEBHOOK_SECRET;
 }
 
 // ─── ScoutBot structured payload ─────────────────────────────────────────────
@@ -104,6 +105,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
+  // Respond to Telegram immediately — processing is async so Telegram doesn't
+  // time out waiting and drop subsequent messages in the queue.
+  waitUntil(processUpdate(text));
+  return NextResponse.json({ ok: true });
+}
+
+async function processUpdate(text: string): Promise<void> {
   // Try to parse as a ScoutBot structured JSON payload first.
   // Fall back to plain-text parsing if it isn't valid JSON.
   let payload: ScoutBotPayload;
@@ -155,7 +163,6 @@ export async function POST(req: NextRequest) {
     let aiCallsUsed: number;
 
     if (mode === "skip_all") {
-      // ScoutBot did all the work — zero Claude calls
       feedCopyEn = payload.feed_copy_en!;
       storiesScriptHe = payload.stories_script_he!;
       clientPersona = payload.client_persona!;
@@ -164,7 +171,6 @@ export async function POST(req: NextRequest) {
       viralSignals = buildViralSignalsOnly(engagementData, 80);
       aiCallsUsed = 0;
     } else if (mode === "classify_only") {
-      // ScoutBot generated copy but not classification — one Claude call
       const classification = await classifyOnly({ title, rawExcerpt, sourceUrl: source_url, engagementData });
       feedCopyEn = payload.feed_copy_en!;
       storiesScriptHe = payload.stories_script_he!;
@@ -174,7 +180,6 @@ export async function POST(req: NextRequest) {
       viralSignals = classification.viralSignals;
       aiCallsUsed = 1;
     } else {
-      // Raw text — full three-call processing
       const processed = await processContent({ title, rawExcerpt, sourceUrl: source_url, engagementData });
       feedCopyEn = processed.feedCopyEn;
       storiesScriptHe = processed.storiesScriptHe;
@@ -220,20 +225,12 @@ export async function POST(req: NextRequest) {
             {
               content_id: data.id,
               event: "ai_processed" as const,
-              payload: {
-                model: "claude-sonnet-4-6",
-                calls: aiCallsUsed,
-                mode,
-              },
+              payload: { model: "claude-sonnet-4-6", calls: aiCallsUsed, mode },
             },
           ]
         : []),
     ]);
-
-    return NextResponse.json({ ok: true, id: data.id, mode, aiCallsUsed });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("[ingest/telegram]", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[ingest/telegram]", err instanceof Error ? err.message : err);
   }
 }
