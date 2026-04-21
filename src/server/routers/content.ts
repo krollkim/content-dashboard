@@ -135,7 +135,7 @@ export const contentRouter = router({
   inboxCounts: protectedProcedure.query(async ({ ctx }) => {
     const { data, error } = await ctx.supabase
       .from("content_pieces")
-      .select("status")
+      .select("status, created_at")
       .in("status", ["inbox", "starred"]);
 
     if (error) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
@@ -143,9 +143,10 @@ export const contentRouter = router({
     const counts = { all: 0, starred: 0, today: 0 };
     const today = new Date().toDateString();
 
-    (data ?? []).forEach((row: { status: string }) => {
+    (data ?? []).forEach((row: { status: string; created_at: string }) => {
       counts.all++;
       if (row.status === "starred") counts.starred++;
+      if (new Date(row.created_at).toDateString() === today) counts.today++;
     });
 
     return counts;

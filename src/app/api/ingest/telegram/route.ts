@@ -138,7 +138,9 @@ async function processUpdate(text: string): Promise<void> {
     };
   }
 
-  const { title, source_url, raw_excerpt } = payload;
+  // Strip markdown formatting (bold, italic) from title
+  const title = payload.title.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").trim();
+  const { source_url, raw_excerpt } = payload;
   const rawExcerpt = raw_excerpt ?? title;
 
   const engagementData = payload.engagement

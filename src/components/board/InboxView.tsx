@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { trpc } from "@/lib/trpc/client";
+import { createClient } from "@/lib/supabase/client";
 import { useContentStore } from "@/stores/useContentStore";
 import { InboxCard } from "./InboxCard";
 import { showToast } from "@/components/ui/Toast";
@@ -33,10 +34,30 @@ export function InboxView() {
   // Authoritative counts — not derived from the current page's items
   const { data: counts } = trpc.content.inboxCounts.useQuery();
 
-  const invalidateAll = () => {
+  const invalidateAll = useCallback(() => {
     void utils.content.list.invalidate();
     void utils.content.inboxCounts.invalidate();
-  };
+  }, [utils]);
+
+  // ─── Supabase Realtime — auto-refresh when new content arrives ────────────
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("inbox-realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "content_pieces" },
+        () => {
+          invalidateAll();
+          showToast("New content arrived");
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [invalidateAll]);
 
   const transitionMutation = trpc.content.transition.useMutation({
     onSuccess: invalidateAll,
