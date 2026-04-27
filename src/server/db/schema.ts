@@ -5,6 +5,9 @@ import {
   jsonb,
   timestamp,
   pgEnum,
+  integer,
+  real,
+  date,
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -126,7 +129,53 @@ export const pipelineLogs = pgTable("pipeline_logs", {
     .defaultNow(),
 });
 
+export const postTypeEnum = pgEnum("post_type", [
+  "image",
+  "video_reel",
+  "carousel",
+  "story",
+]);
+
+export const dailyMetrics = pgTable("daily_metrics", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  accountId: text("account_id").notNull().default("default"),
+  date: date("date").notNull(),
+  followersCount: integer("followers_count").notNull().default(0),
+  followersGained: integer("followers_gained").notNull().default(0),
+  totalReach: integer("total_reach").notNull().default(0),
+  totalImpressions: integer("total_impressions").notNull().default(0),
+  profileViews: integer("profile_views").notNull().default(0),
+  websiteClicks: integer("website_clicks").notNull().default(0),
+  engagementRate: real("engagement_rate").notNull().default(0),
+  shareRate: real("share_rate").notNull().default(0),
+  avgSaves: real("avg_saves").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const postMetrics = pgTable("post_metrics", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  contentPieceId: uuid("content_piece_id").references(() => contentPieces.id, {
+    onDelete: "cascade",
+  }),
+  instagramPostId: text("instagram_post_id"),
+  postType: postTypeEnum("post_type").notNull().default("image"),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
+  reach: integer("reach").notNull().default(0),
+  impressions: integer("impressions").notNull().default(0),
+  likes: integer("likes").notNull().default(0),
+  comments: integer("comments").notNull().default(0),
+  shares: integer("shares").notNull().default(0),
+  saves: integer("saves").notNull().default(0),
+  engagementRate: real("engagement_rate").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // ─── TypeScript Types ─────────────────────────────────────────────────────────
+
+export type DailyMetric = typeof dailyMetrics.$inferSelect;
+export type PostMetric = typeof postMetrics.$inferSelect;
+export type PostType = PostMetric["postType"];
 
 export type ContentPiece = typeof contentPieces.$inferSelect;
 export type NewContentPiece = typeof contentPieces.$inferInsert;

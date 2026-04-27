@@ -32,6 +32,11 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Dev bypass — set NEXT_PUBLIC_DEV_BYPASS_AUTH=true in .env.local to skip email auth
+  if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true") {
+    return supabaseResponse;
+  }
+
   // Unauthenticated user hitting a dashboard page → redirect to login
   if (
     !user &&

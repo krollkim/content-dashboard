@@ -24,6 +24,12 @@ const NAV_ITEMS = [
     description: "Feed preview",
   },
   {
+    href: "/analytics",
+    label: "Analytics",
+    icon: AnalyticsIcon,
+    description: "Performance insights",
+  },
+  {
     href: "/personas",
     label: "Personas",
     icon: PersonasIcon,
@@ -156,6 +162,28 @@ function GalleryIcon({ size, active }: { size: number; active: boolean }) {
         x="9" y="9" width="6" height="6" rx="1"
         stroke={active ? "var(--accent)" : "currentColor"}
         strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
+
+function AnalyticsIcon({ size, active }: { size: number; active: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <path
+        d="M2 12l3.5-4 3 2.5L12 4"
+        stroke={active ? "var(--accent)" : "currentColor"}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx="2" cy="12" r="1"
+        fill={active ? "var(--accent)" : "currentColor"}
+      />
+      <circle
+        cx="12" cy="4" r="1"
+        fill={active ? "var(--accent)" : "currentColor"}
       />
     </svg>
   );
