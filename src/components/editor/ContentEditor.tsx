@@ -12,6 +12,7 @@ import {
   type ClientPersona,
   type ContentStatus,
 } from "@/types/content";
+import { t } from "@/lib/i18n/he";
 
 interface ContentEditorProps {
   id: string;
@@ -23,14 +24,14 @@ export function ContentEditor({ id }: ContentEditorProps) {
   const { data: rawPiece, refetch } = trpc.content.get.useQuery({ id });
   const updateMutation = trpc.content.updateCopy.useMutation({
     onSuccess: () => {
-      showToast("Saved");
+      showToast(t.editor.toastSaved);
       void refetch();
     },
-    onError: () => showToast("Save failed", "error"),
+    onError: () => showToast(t.editor.toastSaveFailed, "error"),
   });
   const transitionMutation = trpc.content.transition.useMutation({
     onSuccess: () => {
-      showToast("Status updated");
+      showToast(t.editor.toastStatusUpdated);
       void refetch();
     },
   });
@@ -108,7 +109,7 @@ export function ContentEditor({ id }: ContentEditorProps) {
                 rel="noopener noreferrer"
                 className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors truncate max-w-[200px]"
               >
-                ↗ Source
+                {t.editor.sourceLink}
               </a>
             )}
           </div>
@@ -128,7 +129,7 @@ export function ContentEditor({ id }: ContentEditorProps) {
             disabled={updateMutation.isPending}
             className="px-4 py-2 bg-[var(--accent)] text-black text-xs font-semibold rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {updateMutation.isPending ? "Saving…" : "Save"}
+            {updateMutation.isPending ? t.editor.saving : t.editor.save}
           </button>
         </div>
       </div>
@@ -164,7 +165,7 @@ export function ContentEditor({ id }: ContentEditorProps) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest font-medium">
-                Feed Caption (EN)
+                {t.editor.feedCaptionLabel}
               </label>
               <span
                 className={`text-[10px] font-mono ${
@@ -181,7 +182,7 @@ export function ContentEditor({ id }: ContentEditorProps) {
               onChange={(e) => setFeedCopyEn(e.target.value)}
               rows={10}
               className="w-full bg-[var(--bg-overlay)] border border-[var(--border-default)] rounded-md px-4 py-3 text-sm text-[var(--text-primary)] resize-none outline-none focus:border-[var(--accent)] transition-colors leading-relaxed"
-              placeholder="Instagram feed caption in English…"
+              placeholder={t.editor.feedPlaceholder}
             />
           </div>
 
@@ -189,7 +190,7 @@ export function ContentEditor({ id }: ContentEditorProps) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest font-medium">
-                Stories Script (HE)
+                {t.editor.storiesLabel}
               </label>
             </div>
             <textarea
@@ -206,13 +207,13 @@ export function ContentEditor({ id }: ContentEditorProps) {
           {/* Visual direction editable */}
           <div>
             <label className="block text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest font-medium mb-2">
-              Visual Direction
+              {t.editor.visualLabel}
             </label>
             <input
               value={visualDirection}
               onChange={(e) => setVisualDirection(e.target.value)}
               className="w-full bg-[var(--bg-overlay)] border border-[var(--border-default)] rounded-md px-4 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent)] transition-colors"
-              placeholder="Art direction note for this post…"
+              placeholder={t.editor.visualPlaceholder}
             />
           </div>
         </div>
@@ -230,7 +231,7 @@ export function ContentEditor({ id }: ContentEditorProps) {
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
-                {mode}
+                {mode === "feed" ? t.editor.tabFeed : t.editor.tabStories}
               </button>
             ))}
           </div>
@@ -275,7 +276,7 @@ function FeedPreview({ caption, title }: { caption: string; title: string }) {
         <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap line-clamp-6">
           {caption || (
             <span className="text-[var(--text-tertiary)] italic">
-              Caption will appear here…
+              {t.editor.captionPlaceholder}
             </span>
           )}
         </p>
@@ -350,7 +351,7 @@ function StatusTransitionMenu({
       className="bg-[var(--bg-overlay)] border border-[var(--border-default)] rounded-md px-3 py-2 text-xs text-[var(--text-secondary)] outline-none"
     >
       <option value="" disabled>
-        Move to…
+        {t.editor.moveTo}
       </option>
       {options.map((s) => (
         <option key={s} value={s}>

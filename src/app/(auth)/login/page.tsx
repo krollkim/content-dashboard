@@ -4,11 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-
-const URL_ERROR_MESSAGES: Record<string, string> = {
-  otp_expired: "That link has expired. Enter your email below to get a fresh one.",
-  access_denied: "Link invalid or already used. Request a new one below.",
-};
+import { t } from "@/lib/i18n/he";
 
 // ─── Inner form — uses useSearchParams, must be inside <Suspense> ─────────────
 
@@ -52,7 +48,7 @@ function LoginForm() {
   // Derived from URL — no useEffect needed
   const errorCode = searchParams.get("error_code");
   const urlError = errorCode
-    ? (URL_ERROR_MESSAGES[errorCode] ?? "Something went wrong. Please request a new link.")
+    ? (t.login.errors[errorCode] ?? t.login.errors.fallback)
     : null;
 
   const visibleError = urlError ?? formError;
@@ -109,14 +105,14 @@ function LoginForm() {
                 htmlFor="email"
                 className="block text-xs text-[var(--text-secondary)] mb-2 tracking-wide"
               >
-                Email address
+                {t.login.emailLabel}
               </label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@smiley.studio"
+                placeholder={t.login.emailPlaceholder}
                 required
                 autoFocus
                 className="w-full bg-[var(--bg-overlay)] border border-[var(--border-default)] rounded-md px-4 py-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)] transition-colors"
@@ -128,7 +124,7 @@ function LoginForm() {
               disabled={loading}
               className="w-full bg-[var(--accent)] text-black font-semibold text-sm py-3 rounded-md transition-opacity hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? "Sending…" : "Send magic link"}
+              {loading ? t.login.sending : t.login.sendButton}
             </button>
           </motion.form>
         ) : (
@@ -140,17 +136,16 @@ function LoginForm() {
           >
             <div className="text-2xl">✉️</div>
             <p className="text-sm text-[var(--text-primary)] font-medium">
-              Check your inbox
+              {t.login.sentTitle}
             </p>
             <p className="text-xs text-[var(--text-secondary)]">
-              Sent a new magic link to{" "}
-              <span className="text-[var(--accent)]">{email}</span>
+              {t.login.sentBody(email)}
             </p>
             <button
               onClick={() => setSent(false)}
               className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors underline underline-offset-2 mt-2"
             >
-              Wrong email? Try again
+              {t.login.wrongEmail}
             </button>
           </motion.div>
         )}
@@ -178,10 +173,10 @@ export default function LoginPage() {
         {/* Header */}
         <div className="mb-10 text-center">
           <p className="font-display text-2xl font-semibold text-[var(--text-primary)] mb-1">
-            Content OS
+            {t.login.title}
           </p>
           <p className="text-xs text-[var(--text-tertiary)] tracking-widest uppercase">
-            Smiley Solution · Internal
+            {t.login.subtitle}
           </p>
         </div>
 

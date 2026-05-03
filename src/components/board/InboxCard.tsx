@@ -9,6 +9,7 @@ import {
   type ContentPiece,
 } from "@/types/content";
 import { showToast } from "@/components/ui/Toast";
+import { t } from "@/lib/i18n/he";
 
 interface InboxCardProps {
   piece: ContentPiece;
@@ -47,11 +48,11 @@ export function InboxCard({
       try {
         await fn(piece.id);
         if (action === "star") {
-          showToast("Starred — find it in the Starred filter");
+          showToast(t.inboxCard.toastStarred);
         }
       } catch {
         setExiting(null);
-        showToast("Action failed — try again", "error");
+        showToast(t.inboxCard.toastFailed, "error");
       }
     },
     [piece.id]
@@ -140,7 +141,7 @@ export function InboxCard({
             {viralConfig && piece.viralSignals && (
               <div className="rounded-md bg-[var(--bg-overlay)] border border-[var(--border-subtle)] px-3 py-2 space-y-1">
                 <p className="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-widest">
-                  Why it&apos;s viral
+                  {t.inboxCard.whyViral}
                 </p>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs">{viralConfig.emoji}</span>
@@ -150,7 +151,7 @@ export function InboxCard({
                 </div>
                 {piece.viralSignals.engagementCount > 0 && (
                   <p className="text-[10px] text-[var(--text-secondary)]">
-                    {piece.viralSignals.engagementCount.toLocaleString()} engagements
+                    {t.inboxCard.engagements(piece.viralSignals.engagementCount)}
                   </p>
                 )}
                 {piece.viralSignals.trendTags.length > 0 && (
@@ -169,7 +170,7 @@ export function InboxCard({
               <div className="flex items-center justify-between">
                 <Badge label={personaConfig.label} color={personaConfig.color} size="xs" />
                 <span className="text-[10px] text-[var(--text-secondary)]">
-                  {piece.viralSignals.confidenceScore}% match
+                  {t.inboxCard.match(piece.viralSignals.confidenceScore)}
                 </span>
               </div>
             )}
@@ -187,16 +188,16 @@ export function InboxCard({
               <button
                 onClick={() => void handleAction("reject", onReject)}
                 className="flex-1 py-2 rounded-md text-xs font-medium text-red-400 bg-red-400/8 border border-red-400/20 hover:bg-red-400/15 transition-colors"
-                title="Reject (R)"
+                title={t.inboxCard.reject}
               >
-                ✗ Reject
+                ✗ {t.inboxCard.reject}
               </button>
               <button
                 onClick={() => void handleAction("approve", onApprove)}
                 className="flex-1 py-2 rounded-md text-xs font-semibold text-black bg-[var(--accent)] hover:opacity-90 transition-opacity"
-                title="Approve (A)"
+                title={t.inboxCard.approve}
               >
-                ✓ Approve
+                ✓ {t.inboxCard.approve}
               </button>
             </div>
           </div>

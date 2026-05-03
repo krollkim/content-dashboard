@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Playfair_Display, Heebo } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,6 +11,12 @@ const inter = Inter({
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const heebo = Heebo({
+  variable: "--font-heebo",
+  subsets: ["hebrew", "latin"],
   display: "swap",
 });
 
@@ -26,8 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${inter.variable} ${playfair.variable} h-full`}
+      lang="he"
+      dir="rtl"
+      className={`${inter.variable} ${playfair.variable} ${heebo.variable} h-full`}
     >
       <body className="h-full antialiased">{children}</body>
     </html>

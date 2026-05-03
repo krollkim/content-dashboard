@@ -8,11 +8,12 @@ import { useContentStore } from "@/stores/useContentStore";
 import { InboxCard } from "./InboxCard";
 import { showToast } from "@/components/ui/Toast";
 import type { ContentStatus, ClientPersona } from "@/types/content";
+import { t } from "@/lib/i18n/he";
 
 const TABS = [
-  { id: "all", label: "All" },
-  { id: "starred", label: "Starred" },
-  { id: "today", label: "Today" },
+  { id: "all",     label: t.inbox.tabAll     },
+  { id: "starred", label: t.inbox.tabStarred },
+  { id: "today",   label: t.inbox.tabToday   },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -49,7 +50,7 @@ export function InboxView() {
         { event: "INSERT", schema: "public", table: "content_pieces" },
         () => {
           invalidateAll();
-          showToast("New content arrived");
+          showToast(t.inbox.toastNew);
         }
       )
       .subscribe();
@@ -70,7 +71,7 @@ export function InboxView() {
   const handleApprove = useCallback(
     async (id: string) => {
       await transitionMutation.mutateAsync({ id, status: "draft" });
-      showToast("Approved — moved to Board");
+      showToast(t.inbox.toastApproved);
     },
     [transitionMutation]
   );
@@ -78,7 +79,7 @@ export function InboxView() {
   const handleReject = useCallback(
     async (id: string) => {
       await transitionMutation.mutateAsync({ id, status: "archived" });
-      showToast("Rejected");
+      showToast(t.inbox.toastRejected);
     },
     [transitionMutation]
   );
@@ -134,13 +135,10 @@ export function InboxView() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="font-display text-xl font-semibold text-[var(--text-primary)]">
-              Inbox
+              {t.inbox.heading}
             </h1>
             <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-              Curate incoming content · <kbd className="text-[var(--accent)]">A</kbd> approve ·{" "}
-              <kbd className="text-[var(--accent)]">R</kbd> reject ·{" "}
-              <kbd className="text-[var(--accent)]">S</kbd> star ·{" "}
-              <kbd className="text-[var(--accent)]">J/K</kbd> navigate
+              {t.inbox.subheading}
             </p>
           </div>
 
@@ -227,10 +225,10 @@ function EmptyState() {
         <span className="text-lg">📭</span>
       </div>
       <p className="text-sm font-medium text-[var(--text-secondary)]">
-        Inbox is clear
+        {t.inbox.emptyTitle}
       </p>
       <p className="text-xs text-[var(--text-tertiary)] mt-1">
-        ScoutBot will populate new content automatically
+        {t.inbox.emptyBody}
       </p>
     </div>
   );
@@ -242,8 +240,8 @@ function ManualIngestButton({ onSuccess }: { onSuccess: () => void }) {
   return (
     <button
       onClick={() => {
-        const title = prompt("Article title:");
-        const excerpt = prompt("Paste article excerpt:");
+        const title = prompt(t.inbox.promptTitle);
+        const excerpt = prompt(t.inbox.promptExcerpt);
         if (!title || !excerpt) return;
 
         fetch("/api/ingest/manual", {
@@ -254,18 +252,18 @@ function ManualIngestButton({ onSuccess }: { onSuccess: () => void }) {
           .then((r) => r.json())
           .then((data: unknown) => {
             if (data && typeof data === "object" && "ok" in data && (data as { ok: boolean }).ok) {
-              showToast("Content added — AI processing…");
+              showToast(t.inbox.toastAdded);
               setTimeout(onSuccess, 3000);
             } else {
-              showToast("Failed to add content", "error");
+              showToast(t.inbox.toastAddFail, "error");
             }
           })
-          .catch(() => showToast("Failed to add content", "error"));
+          .catch(() => showToast(t.inbox.toastAddFail, "error"));
       }}
       className="flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-[var(--border-default)] hover:text-[var(--text-primary)] transition-colors"
     >
       <span>+</span>
-      Add manually
+      {t.inbox.addManually}
     </button>
   );
 }

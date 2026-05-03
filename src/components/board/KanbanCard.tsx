@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { PERSONA_CONFIG, STATUS_CONFIG, type ContentStatus, type ClientPersona } from "@/types/content";
+import { t } from "@/lib/i18n/he";
 
 interface CardData {
   id: string;
@@ -73,7 +74,7 @@ export function KanbanCard({ piece, isDragging = false }: KanbanCardProps) {
           onClick={(e) => e.stopPropagation()}
           className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors"
         >
-          Edit →
+          {t.actions.edit}
         </Link>
       </div>
     </div>

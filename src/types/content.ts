@@ -69,32 +69,34 @@ export interface Persona {
 
 // ─── UI Helpers ───────────────────────────────────────────────────────────────
 
+import { t } from "@/lib/i18n/he";
+
 export const PERSONA_CONFIG: Record<
   ClientPersona,
   { label: string; color: string; cssVar: string }
 > = {
   analytical_ceo: {
-    label: "Analytical CEO",
+    label: t.personaLabels.analytical_ceo,
     color: "#60A5FA",
     cssVar: "var(--persona-ceo)",
   },
   dreamer_founder: {
-    label: "Dreamer Founder",
+    label: t.personaLabels.dreamer_founder,
     color: "#F472B6",
     cssVar: "var(--persona-founder)",
   },
   creative_director: {
-    label: "Creative Director",
+    label: t.personaLabels.creative_director,
     color: "#A78BFA",
     cssVar: "var(--persona-director)",
   },
   growth_hacker: {
-    label: "Growth Hacker",
+    label: t.personaLabels.growth_hacker,
     color: "#34D399",
     cssVar: "var(--persona-hacker)",
   },
   lifestyle_visionary: {
-    label: "Lifestyle Visionary",
+    label: t.personaLabels.lifestyle_visionary,
     color: "#FB923C",
     cssVar: "var(--persona-visionary)",
   },
@@ -104,22 +106,22 @@ export const STATUS_CONFIG: Record<
   ContentStatus,
   { label: string; color: string }
 > = {
-  inbox: { label: "Inbox", color: "#3B82F6" },
-  starred: { label: "Starred", color: "#F59E0B" },
-  draft: { label: "Draft", color: "#6B7280" },
-  approved: { label: "Approved", color: "#10B981" },
-  produced: { label: "Produced", color: "#8B5CF6" },
-  published: { label: "Published", color: "#E8FF5A" },
-  archived: { label: "Archived", color: "#374151" },
+  inbox:     { label: t.statusLabels.inbox,     color: "#3B82F6" },
+  starred:   { label: t.statusLabels.starred,   color: "#F59E0B" },
+  draft:     { label: t.statusLabels.draft,     color: "#6B7280" },
+  approved:  { label: t.statusLabels.approved,  color: "#10B981" },
+  produced:  { label: t.statusLabels.produced,  color: "#8B5CF6" },
+  published: { label: t.statusLabels.published, color: "#E8FF5A" },
+  archived:  { label: t.statusLabels.archived,  color: "#374151" },
 };
 
 export const VIRAL_SIGNAL_CONFIG: Record<
   ViralSignalLabel,
   { label: string; emoji: string }
 > = {
-  high_engagement: { label: "High Engagement", emoji: "🔥" },
-  trending_topic: { label: "Trending Topic", emoji: "📈" },
-  thought_leader: { label: "Thought Leader", emoji: "💡" },
-  contrarian_take: { label: "Contrarian Take", emoji: "⚡" },
-  timely_news: { label: "Timely News", emoji: "📰" },
+  high_engagement: { label: t.viralSignals.high_engagement.label, emoji: t.viralSignals.high_engagement.emoji },
+  trending_topic:  { label: t.viralSignals.trending_topic.label,  emoji: t.viralSignals.trending_topic.emoji  },
+  thought_leader:  { label: t.viralSignals.thought_leader.label,  emoji: t.viralSignals.thought_leader.emoji  },
+  contrarian_take: { label: t.viralSignals.contrarian_take.label, emoji: t.viralSignals.contrarian_take.emoji },
+  timely_news:     { label: t.viralSignals.timely_news.label,     emoji: t.viralSignals.timely_news.emoji     },
 };

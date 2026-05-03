@@ -3,6 +3,7 @@
 import { trpc } from "@/lib/trpc/client";
 import { PERSONA_CONFIG, type ClientPersona } from "@/types/content";
 import { Badge } from "@/components/ui/Badge";
+import { t } from "@/lib/i18n/he";
 
 export default function PersonasPage() {
   const { data: personas } = trpc.personas.list.useQuery();
@@ -13,10 +14,10 @@ export default function PersonasPage() {
     <div className="px-8 pt-8 pb-12">
       <div className="mb-8">
         <h1 className="font-display text-xl font-semibold text-[var(--text-primary)]">
-          Client Personas
+          {t.personas.heading}
         </h1>
         <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-          Used by AI to tailor content tone and targeting
+          {t.personas.subheading}
         </p>
       </div>
 
@@ -47,17 +48,17 @@ export default function PersonasPage() {
               {/* Tone profile */}
               <div>
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest mb-1">
-                  Tone Profile
+                  {t.personas.toneProfile}
                 </p>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  {dbPersona?.tone_profile ?? "Loading…"}
+                  {dbPersona?.tone_profile ?? t.personas.loading}
                 </p>
               </div>
 
               {/* Pain point */}
               <div>
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest mb-1">
-                  Core Pain
+                  {t.personas.corePain}
                 </p>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                   {dbPersona?.target_pain ?? "—"}
@@ -67,7 +68,7 @@ export default function PersonasPage() {
               {/* Example hook */}
               <div>
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest mb-1">
-                  Example Hook
+                  {t.personas.exampleHook}
                 </p>
                 <p className="text-xs text-[var(--text-primary)] leading-relaxed italic">
                   &ldquo;{dbPersona?.example_hook ?? "—"}&rdquo;

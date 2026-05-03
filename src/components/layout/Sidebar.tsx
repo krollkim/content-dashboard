@@ -3,37 +3,38 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { t } from "@/lib/i18n/he";
 
 const NAV_ITEMS = [
   {
     href: "/inbox",
-    label: "Inbox",
+    label: t.nav.inbox.label,
     icon: InboxIcon,
-    description: "Curate incoming content",
+    description: t.nav.inbox.description,
   },
   {
     href: "/board",
-    label: "Board",
+    label: t.nav.board.label,
     icon: BoardIcon,
-    description: "Production pipeline",
+    description: t.nav.board.description,
   },
   {
     href: "/gallery",
-    label: "Gallery",
+    label: t.nav.gallery.label,
     icon: GalleryIcon,
-    description: "Feed preview",
+    description: t.nav.gallery.description,
   },
   {
     href: "/analytics",
-    label: "Analytics",
+    label: t.nav.analytics.label,
     icon: AnalyticsIcon,
-    description: "Performance insights",
+    description: t.nav.analytics.description,
   },
   {
     href: "/personas",
-    label: "Personas",
+    label: t.nav.personas.label,
     icon: PersonasIcon,
-    description: "Client profiles",
+    description: t.nav.personas.description,
   },
 ] as const;
 
@@ -45,10 +46,10 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-[var(--border-subtle)]">
         <p className="font-display text-sm font-semibold text-[var(--text-primary)] tracking-wide">
-          Content OS
+          {t.brand.name}
         </p>
         <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 tracking-widest uppercase">
-          Smiley Solution
+          {t.brand.studio}
         </p>
       </div>
 
@@ -95,7 +96,7 @@ export function Sidebar() {
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] glow-accent" />
           <span className="text-[10px] text-[var(--text-tertiary)] tracking-widest uppercase">
-            Live
+            {t.brand.live}
           </span>
         </div>
       </div>

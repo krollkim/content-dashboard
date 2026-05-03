@@ -6,6 +6,7 @@ import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { Badge } from "@/components/ui/Badge";
 import { PERSONA_CONFIG, type ClientPersona } from "@/types/content";
+import { t } from "@/lib/i18n/he";
 
 export function FeedGallery() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -24,10 +25,10 @@ export function FeedGallery() {
           <span className="text-2xl">🖼</span>
         </div>
         <p className="text-sm font-medium text-[var(--text-secondary)]">
-          No published posts yet
+          {t.gallery.emptyTitle}
         </p>
         <p className="text-xs text-[var(--text-tertiary)] mt-1">
-          Publish content from the Board to see your feed preview
+          {t.gallery.emptyBody}
         </p>
       </div>
     );
@@ -38,10 +39,10 @@ export function FeedGallery() {
       {/* Header */}
       <div className="px-8 pt-8 pb-5 border-b border-[var(--border-subtle)]">
         <h1 className="font-display text-xl font-semibold text-[var(--text-primary)]">
-          Feed Gallery
+          {t.gallery.heading}
         </h1>
         <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-          {pieces.length} published posts · Instagram preview
+          {t.gallery.subheading(pieces.length)}
         </p>
       </div>
 
@@ -124,7 +125,7 @@ export function FeedGallery() {
                       href={`/content/${typedPiece.id}`}
                       className="text-[10px] text-[var(--accent)] hover:underline"
                     >
-                      Edit →
+                      {t.actions.edit}
                     </Link>
                   </div>
                 </motion.div>

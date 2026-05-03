@@ -4,6 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { KanbanCard } from "./KanbanCard";
 import { STATUS_CONFIG, type ContentStatus } from "@/types/content";
+import { t } from "@/lib/i18n/he";
 
 interface KanbanColumnProps {
   status: ContentStatus;
@@ -68,7 +69,7 @@ function DropZoneHint() {
   return (
     <div className="flex items-center justify-center h-20 rounded-lg border border-dashed border-[var(--border-subtle)]">
       <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest">
-        Drop here
+        {t.board.dropHere}
       </p>
     </div>
   );

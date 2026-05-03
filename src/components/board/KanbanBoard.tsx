@@ -16,12 +16,13 @@ import { KanbanColumn } from "./KanbanColumn";
 import { KanbanCard } from "./KanbanCard";
 import { showToast } from "@/components/ui/Toast";
 import type { ContentStatus } from "@/types/content";
+import { t } from "@/lib/i18n/he";
 
 const COLUMNS: Array<{ status: ContentStatus; label: string }> = [
-  { status: "draft", label: "Draft" },
-  { status: "approved", label: "Approved" },
-  { status: "produced", label: "Produced" },
-  { status: "published", label: "Published" },
+  { status: "draft",     label: t.board.columns.draft     },
+  { status: "approved",  label: t.board.columns.approved  },
+  { status: "produced",  label: t.board.columns.produced  },
+  { status: "published", label: t.board.columns.published },
 ];
 
 export function KanbanBoard() {
@@ -42,7 +43,7 @@ export function KanbanBoard() {
       queries.forEach((q) => void q.refetch());
     },
     onError: () => {
-      showToast("Failed to move card — try again", "error");
+      showToast(t.board.toastMoveFailed, "error");
       queries.forEach((q) => void q.refetch());
     },
   });
@@ -76,10 +77,10 @@ export function KanbanBoard() {
       {/* Header */}
       <div className="px-8 pt-8 pb-5 border-b border-[var(--border-subtle)]">
         <h1 className="font-display text-xl font-semibold text-[var(--text-primary)]">
-          Production Board
+          {t.board.heading}
         </h1>
         <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-          Approved content only · drag to advance through pipeline
+          {t.board.subheading}
         </p>
       </div>
 
